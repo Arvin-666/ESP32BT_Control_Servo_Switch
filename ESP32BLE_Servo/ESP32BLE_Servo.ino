@@ -1,5 +1,6 @@
 /*
  * ESP32BLE控制舵机实现开关灯
+ * 新增315MHz无线遥控<------>11.23
  * Author:猿一
  * 2021.11.14
  */
@@ -17,10 +18,14 @@ static const int servoPin = 16;
 static const int OpenParameter = 105;   //开启开关舵机的角度
 static const int CloseParameter = 5; //关闭开关舵机的角度
 static const int ResetParemeter = 45; //舵机复位角度
+static const int OpenPin = 12;
+static const int ClosePin = 14;
 String readMsg = "";
 void setup()
 {
   Serial.begin(115200);
+  pinMode(OpenPin, INPUT);
+  pinMode(ClosePin, INPUT);
   SerialBT.begin("ESP32BLE_Servo"); //蓝牙设备名称
   delay(50);
   Serial.println("The device started, now you can pair it with bluetooth!");
@@ -45,7 +50,7 @@ void ReceiverBleMessage()
 void loop()
 {
   ReceiverBleMessage();
-  if (readMsg == "OPEN")
+  if ((readMsg == "OPEN")||(digitalRead(OpenPin) == 1))
   {
     servo1.write(OpenParameter);
     delay(200);
@@ -53,7 +58,7 @@ void loop()
     Serial.print("Receiver:");
     Serial.println(readMsg);
   }
-  else if (readMsg == "CLOSE")
+  else if ((readMsg == "CLOSE")||(digitalRead(ClosePin) == 1))
   {
     servo1.write(CloseParameter);
     delay(200);
